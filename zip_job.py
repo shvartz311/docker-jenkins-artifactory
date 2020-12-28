@@ -1,4 +1,6 @@
 import sys
+import os
+from zipfile import ZipFile
 arr = ['a', 'b', 'c', 'd']
 for i in arr:
     try:
@@ -9,4 +11,4 @@ for i in arr:
         sys.exit(1)
     else:
         # exists
-    
+        print("File exists")
