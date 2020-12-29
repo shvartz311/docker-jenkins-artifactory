@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-ENV VERSION=1.2.0
+#ENV VERSION="1.2.0" deprecated this as stating it in the dockerfile and bringing it into the python script is kind of a waste when you can use -e at docker run command
 RUN apt-get update && apt-get install -y \
   python3 \
   vim \
