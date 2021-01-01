@@ -7,3 +7,5 @@ Build with:
 docker build -t example -f Dockerfile .
 To run the container:
 docker run -e VERSION=1.2.0 --rm --name example example
+
+docker run --name artifactory -d -p 8081:8081 -p 8082:8082 docker.bintray.io/jfrog/artifactory-oss:latest
