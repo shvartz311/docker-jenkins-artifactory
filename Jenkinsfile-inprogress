@@ -1,0 +1,42 @@
+pipeline
+{
+    agent {
+        dockerfile true
+        //label 'zip-job-docker'
+    }
+    stages
+    {
+        stage('Build stage - Run script')
+        {
+            steps
+            {
+                script
+                {          
+                    sh "python3 /tmp/zip_job.py"
+                }
+            }
+        }
+        stage('Publish stage - Archive artifacts')
+        {
+            steps
+            {
+                archiveArtifacts artifacts: '*.zip', followSymlinks: false
+            }
+        }
+        stage ('Excluded upload')
+        {
+            steps
+            {
+                rtUpload ( serverId: "artifactory-telaviv", specPath: './*.zip' ) # this spec file mentions the pattern to note
+            }
+        }
+
+        stage ('Publish build info')
+        {
+            steps
+            {
+                rtPublishBuildInfo ( serverId: "artifactory-telaviv" )
+            }
+    }
+}
+}

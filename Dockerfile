@@ -7,5 +7,3 @@ RUN apt-get update && apt-get install -y \
   unzip
 COPY ./zip_job.py /tmp/
 CMD ["sh","-c","cat /etc/os-release && [ -f /tmp/zip_job.py ]"]
-
-#deprecated the ENV as stating it in the dockerfile and bringing it into the python script is kind of a waste when you can use -e at docker run command
