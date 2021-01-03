@@ -1,0 +1,30 @@
+def server = Artifactory.newServer url: 'http://172.18.0.2:8082/artifactory', username: 'admin', password: 'password'
+
+node ('zip-job-docker') {
+    stage('Source') {
+        git url: 'https://github.com/shvartz311/docker-jenkins-artifactory.git', branch: 'main'
+    }
+    stage('Build'){
+        def customImage = docker.build("example", "-f Dockerfile ./")
+        customImage.inside {sh 'python3 /tmp/zip_job.py'}
+    }
+    stage('Publish'){
+        def uploadSpec = """{
+        "files": [{
+            "pattern": "/var/jenkins_home/workspace/scripted-pipeline/*.zip",
+            "target": "example-repo-local/"
+        }]
+        }"""
+        server.upload spec: uploadSpec
+    }
+    stage('Report'){
+        emailext (
+            subject: "Job ran",
+            body: """<p>Check console output""",
+            to: "oryshkat@hotmail.com"
+            )
+    }
+    stage('Cleanup'){
+        always {cleanWs()}
+    }
+}
