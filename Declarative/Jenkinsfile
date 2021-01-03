@@ -53,5 +53,12 @@ pipeline
                 emailext body: 'Your job has run.', recipientProviders: [buildUser()], subject: 'Reporting', to: 'oryshkat@hotmail.com'
             }
         }
+        stage('Cleanup - delete workspace')
+        {
+            steps
+            {
+                always {cleanWs()}
+            }
+        }
 }
 }
