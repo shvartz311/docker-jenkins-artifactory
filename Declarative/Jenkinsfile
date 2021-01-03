@@ -1,0 +1,57 @@
+pipeline
+{
+    agent {
+        dockerfile{ label 'zip-job-docker' }
+    }
+    stages 
+    {
+        stage ('Git')
+        {
+            steps
+            {
+                git branch: 'main', url: 'https://github.com/shvartz311/docker-jenkins-artifactory.git'
+            }
+        }
+        stage ('Artifactory Configuration')
+        {
+            steps
+            {
+                rtServer (id: SERVER_ID,  url: "http://172.18.0.2:8082/artifactory", username: 'admin', password: 'password')
+            }
+        }
+        stage('Build stage - Run script')
+        {
+            steps
+            {
+                script
+                {          
+                    sh "python3 /tmp/zip_job.py"
+                }
+            }
+        }
+        stage ('Publish stage - Archive artifacts')
+        {
+            steps
+            {
+                rtUpload (
+                    serverId: SERVER_ID,
+                    spec: '''{
+                        "files": [
+                        {
+                            "pattern": "/var/jenkins_home/workspace/test-pipeline/*.zip",
+                            "target": "example-repo-local/"
+                        }
+                    ]
+                }''',
+                failNoOp: true)
+            }
+        }
+        stage('Report stage - Send e-mail')
+        {
+            steps
+            {
+                emailext body: 'Your job has run.', recipientProviders: [buildUser()], subject: 'Reporting', to: 'oryshkat@hotmail.com'
+            }
+        }
+}
+}
