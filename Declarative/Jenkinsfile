@@ -3,6 +3,11 @@ pipeline
     agent {
         dockerfile{ label 'zip-job-docker' }
     }
+
+    environment {
+        ARTIFACT_FOLDER_VERSION = '1.2.0'
+    }
+
     stages 
     {
         stage ('Git')
@@ -39,7 +44,7 @@ pipeline
                         "files": [
                         {
                             "pattern": "/var/jenkins_home/workspace/test-pipeline/*.zip",
-                            "target": "example-repo-local/"
+                            "target": "binary-storage/${ARTIFACT_FOLDER_VERSION}/"
                         }
                     ]
                 }''',
@@ -50,7 +55,10 @@ pipeline
         {
             steps
             {
-                emailext body: 'Your job has run.', recipientProviders: [buildUser()], subject: 'Reporting', to: 'oryshkat@hotmail.com'
+                emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                recipientProviders: [buildUser()],
+                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
+                to: 'oryshkat@hotmail.com'
             }
         }
         stage('Cleanup - delete workspace')

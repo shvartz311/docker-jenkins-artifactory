@@ -8,14 +8,16 @@ node ('zip-job-docker') {
         def customImage = docker.build("example", "-f Dockerfile ./")
         customImage.inside {sh 'python3 /tmp/zip_job.py'}
     }
+    withEnv(['ARTIFACT_FOLDER_VERSION=1.2.0']){
     stage('Publish'){
         def uploadSpec = """{
         "files": [{
             "pattern": "/var/jenkins_home/workspace/scripted-pipeline/*.zip",
-            "target": "example-repo-local/"
+            "target": "binary-storage/${ARTIFACT_FOLDER_VERSION}/"
         }]
         }"""
         server.upload spec: uploadSpec
+        }
     }
     stage('Report'){
         emailext (
